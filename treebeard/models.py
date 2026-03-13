@@ -149,6 +149,18 @@ class Node(models.Model):
         raise NotImplementedError
 
     @classmethod
+    def find_problems_for_tree(cls, root):  # pragma: no cover
+        """Checks for problems in a single tree structure.
+
+        :param root:
+
+            The root node of the tree to check. Must be a root node.
+
+        :raises ValueError: if the provided node is not a root node.
+        """
+        raise NotImplementedError
+
+    @classmethod
     def fix_tree(cls):  # pragma: no cover
         """
         Solves problems that can appear when transactions are not used and

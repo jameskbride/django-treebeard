@@ -547,10 +547,46 @@ class MP_Node(Node):
                   5. a list of ids nodes that report a wrong number of children
         """
         cls = cls.tree_model()
+        return cls._find_problems_in_qs(cls.objects.all())
 
+    @classmethod
+    def find_problems_for_tree(cls, root):
+        """
+        Checks for problems in a single tree structure.
+
+        Same as :meth:`find_problems` but scoped to a single tree identified
+        by its root node.
+
+        :param root:
+
+            The root node of the tree to check. Must be a root node
+            (i.e. its path length equals ``steplen``).
+
+        :returns: A tuple of five lists (same as :meth:`find_problems`):
+
+                  1. a list of ids of nodes with characters not found in the
+                     ``alphabet``
+                  2. a list of ids of nodes when a wrong ``path`` length
+                     according to ``steplen``
+                  3. a list of ids of orphaned nodes
+                  4. a list of ids of nodes with the wrong depth value for
+                     their path
+                  5. a list of ids nodes that report a wrong number of children
+
+        :raises ValueError: if the provided node is not a root node.
+        """
+        cls = cls.tree_model()
+
+        if len(root.path) != cls.steplen:
+            raise ValueError("The provided node is not a root node.")
+
+        return cls._find_problems_in_qs(cls.objects.filter(path__startswith=root.path))
+
+    @classmethod
+    def _find_problems_in_qs(cls, qs):
         evil_chars, bad_steplen, orphans = [], [], []
         wrong_depth, wrong_numchild = [], []
-        for node in cls.objects.all():
+        for node in qs:
             found_error = False
             for char in node.path:
                 if char not in cls.alphabet:
